@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create and Download Excel File</title>
+  <!-- Include SheetJS from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+
+<div>
+  <h2>Select Multiple Dates</h2>
+  <input type="text" id="dateInput" placeholder="Select dates" readonly>
+  <div id="selectedDates">
+    <h3>Selected Dates:</h3>
+    <ul id="datesList"></ul>
+  </div>
+</div>
+
+<div>
+  <h2>routes</h2>
+  <div id="routesbody">
+
+  </div>
+</div>
+
+<body>
+  <h2>Generate and Download Excel File</h2>
+
+  <button onclick="reload()">herlaad</button>
+  <button onclick="exportToExcel()">Download Excel</button>
+
+
+  <table id="data-table" border="1">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be inserted here by JavaScript -->
+    </tbody>
+  </table>
+
+  <script>
+
+    // Your list of routes
+    const routes = [
+      ["Home", "CIM Groningen", "33", "Home_To_Work"],
+      ["Home 2", "CIM Groningen", "43", "Home_To_Work"]
+    ];
+
+    // Get the routesbody div
+    const routesBody = document.getElementById('routesbody');
+
+    // Function to handle route data when a button is clicked
+    function addRouteToData(route) {
+      console.log("dates " +  dates2);
+      // Here you can define what to do with the clicked route
+      console.log(`You clicked on: ${route}`);
+      dates2.forEach(date => {
+
+        data.push([date, route[0], route[1], route[2], route[3]], [date, route[1], route[0], route[2], route[3]])
+        console.log(route)
+      })
+      reload()
+    }
+
+    // Function to create a button for each route
+    function createRouteButton(route) {
+      // Create a div for the route
+      const routeDiv = document.createElement('div');
+
+      // Create a button for the route
+      const button = document.createElement('button');
+      button.textContent = route[0]; // Use the first element as the button text
+
+      // Add a click event listener to the button that calls addRouteToData
+      button.addEventListener('click', () => {
+        addRouteToData(route); // Pass the route to the function
+      });
+
+      // Append the button to the routeDiv
+      routeDiv.appendChild(button);
+
+      // Append the routeDiv to the routesbody
+      routesBody.appendChild(routeDiv);
+    }
+
+    // Loop over the routes array and create buttons for each route
+    routes.forEach(route => {
+      createRouteButton(route);
+    });
+    const data = [
+      ["date", "departure", "arrival", "kilometers", "businesspurpose", "purposeexplanation", "deviatingexplanation"]
+    ];
+
+    reload();
+
+
+    function reload() {
+      // Get the table body element
+      const tableBody = document.getElementById("data-table").getElementsByTagName("tbody")[0];
+      tableBody.innerHTML = ''
+
+      // Loop over data and create rows
+      data.forEach(row => {
+        // Create a new row
+        const tr = document.createElement("tr");
+
+        // Loop over each item in the row array
+        row.forEach(cell => {
+          // Create a new cell
+          const td = document.createElement("td");
+          td.textContent = cell; // Set cell text
+          tr.appendChild(td);    // Append cell to row
+        });
+
+        // Append the row to the table body
+        tableBody.appendChild(tr);
+      });
+
+    }
+
+    function exportToExcel() {
+      // 1. Define the data for the Excel file
+
+
+      // 2. Create a new workbook and add the data as a worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(data); // Convert data array to worksheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+      // 3. Generate the Excel file as a Blob and trigger download
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+      // 4. Create a link to download the Blob as an Excel file
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "example.xlsx"; // File name for download
+
+      // 5. Programmatically click the link to trigger the download
+      link.click();
+
+      // 6. Clean up by revoking the object URL
+      URL.revokeObjectURL(link.href);
+    }
+
+    // Array to hold selected dates
+    const selectedDates = [];
+    dates2 = [];
+
+    // Initialize flatpickr
+    const dateInput = flatpickr("#dateInput", {
+      mode: "multiple", // Enable multiple date selection
+      dateFormat: "Y-m-d", // Format of the selected dates
+      onChange: function (selectedDates, dateStr, instance) {
+        // This function will run when the date is selected
+        // The selectedDates array already contains selected date objects
+        updateDateList(selectedDates);
+      }
+    });
+
+    // Function to update the list of selected dates
+    function updateDateList(dates) {
+      const datesList = document.getElementById('datesList');
+      datesList.innerHTML = ''; // Clear the list before updating
+
+      // Loop through the selected dates and create list items
+      
+      dates2 = dates;
+      // Loop through the selected dates and create list items
+      dates.forEach(date => {
+        const listItem = document.createElement('li');
+        listItem.textContent = date.toLocaleDateString(); // Convert date to a readable format
+        datesList.appendChild(listItem); // Append each date to the list
+      });
+
+    }
+
+    // Button to show selected dates (optional)
+    document.getElementById('showSelectedDates').addEventListener('click', () => {
+      alert('Selected Dates: ' + selectedDates.map(date => date.toLocaleDateString()).join(', '));
+    });
+  </script>
+</body>
+
+</html>
