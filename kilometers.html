@@ -1,14 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create and Download Excel File</title>
-  <!-- Include SheetJS from CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    // Voeg hier je eigen routes toe
+    // Moet hetzelfde zijn als in dynamics 365
+    const routes = [
+      ["Home", "CIM Groningen", "33", "Home_To_Work"],
+      ["Oudega Home", "CIM Groningen", "43", "Home_To_Work"],
+      ["Home", "CIM Vianen", "163", "Home_To_Work"],
+      ["Oudega Home", "CIM Vianen", "179", "Home_To_Work"],
+    ];
+    </script>
+
+    <!-- Include SheetJS from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
   <!------------------ Style ------------------------->
   <style>
@@ -42,7 +53,6 @@
 </head>
 
 <!---------------------------- BODY ---------------------------------->
-
 <body>
 
   <div class="row">
@@ -81,13 +91,6 @@
 
   <!--------------------------- SCRIPT ---------------------------->
   <script>
-    // Voeg hier je eigen routes toe
-    // Moet hetzelfde zijn als in dynamics 365
-    const routes = [
-      ["Home", "CIM Groningen", "33", "Home_To_Work"],
-      ["Oudega Home", "CIM Groningen", "43", "Home_To_Work"]
-    ];
-
     // Get the routesbody div
     const routesBody = document.getElementById('routesbody');
 
