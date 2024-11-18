@@ -2,9 +2,6 @@
 <html lang="nl">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create and Download Excel File</title>
   <script>
     // Voeg hier je eigen routes toe
     // Moet hetzelfde zijn als in dynamics 365
@@ -14,7 +11,10 @@
       ["Home", "CIM Vianen", "163", "Home_To_Work"],
       ["Oudega Home", "CIM Vianen", "179", "Home_To_Work"],
     ];
-    </script>
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kilometers</title>
 
     <!-- Include SheetJS from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
@@ -101,7 +101,7 @@
       console.log(`You clicked on: ${route}`);
       dates2.forEach(date => {
 
-        data.push([formatDateInDutch(date), route[0], route[1], route[2], route[3]], [formatDateInDutch(date), route[1], route[0], route[2], route[3]])
+        data.push([formatDate(date), route[0], route[1], route[2], route[3]], [formatDate(date), route[1], route[0], route[2], route[3]])
         console.log(route)
       })
       reload()
@@ -132,6 +132,7 @@
     routes.forEach(route => {
       createRouteButton(route);
     });
+    
     const data = [
       ["date", "departure", "arrival", "kilometers", "businesspurpose", "purposeexplanation", "deviatingexplanation"]
     ];
@@ -199,46 +200,16 @@
       alert('Selected Dates: ' + selectedDates.map(date => date.toLocaleDateString()).join(', '));
     });
 
-    function formatDateInDutch(date) {
-      // Arrays to hold Dutch names for days and months
-      const daysOfWeek = [
-        "zondag",  // 0
-        "maandag", // 1
-        "dinsdag", // 2
-        "woensdag",// 3
-        "donderdag",// 4
-        "vrijdag", // 5
-        "zaterdag"  // 6
-      ];
-
-      const months = [
-        "januari",   // 0
-        "februari",  // 1
-        "maart",     // 2
-        "april",     // 3
-        "mei",       // 4
-        "juni",      // 5
-        "juli",      // 6
-        "augustus",  // 7
-        "september", // 8
-        "oktober",   // 9
-        "november",  // 10
-        "december"   // 11
-      ];
-
-      // Get the day of the week, day of the month, month, and year
-      const dayOfWeek = daysOfWeek[date.getDay()];
+    function formatDate(date) {
       const dayOfMonth = date.getDate();
-      const month = months[date.getMonth()];
+      const month = date.getMonth() + 1; //zero index, so january is 0
       const year = date.getFullYear();
-
-      // Return the formatted date string
-      return `${dayOfWeek} ${dayOfMonth} ${month} ${year}`;
+      return `${month}-${dayOfMonth}-${year}`;
     }
 
     function exportToExcel() {
       // 1. Define the data for the Excel file
-
+      // Data array
 
       // 2. Create a new workbook and add the data as a worksheet
       const worksheet = XLSX.utils.aoa_to_sheet(data); // Convert data array to worksheet
@@ -260,7 +231,6 @@
       // 6. Clean up by revoking the object URL
       URL.revokeObjectURL(link.href);
     }
-
 
   </script>
 </body>
