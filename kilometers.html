@@ -5,11 +5,12 @@
   <script>
     // Voeg hier je eigen routes toe
     // Moet hetzelfde zijn als in dynamics 365
+    // ["naam van huis", "naam van bestemming", aantal kilometers, "route type uit dynamics", "doel van route", "reden van omrijden"]
     const routes = [
-      ["Home", "CIM Groningen", "33", "Home_To_Work"],
-      ["Oudega Home", "CIM Groningen", "43", "Home_To_Work"],
-      ["Home", "CIM Vianen", "163", "Home_To_Work"],
-      ["Oudega Home", "CIM Vianen", "179", "Home_To_Work"],
+      ["Home", "CIM Groningen", 33, "Home_To_Work", "", "Snelste route"],
+      ["Oudega Home", "CIM Groningen", 43, "Home_To_Work","", "Snelste route" ],
+      ["Home", "CIM Vianen", 163, "Home_To_Work","", "Snelste route"],
+      ["Oudega Home", "CIM Vianen", 179, "Home_To_Work", "", "Snelste route"],
     ];
   </script>
   <meta charset="UTF-8">
@@ -20,6 +21,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
 
   <!------------------ Style ------------------------->
   <style>
@@ -36,7 +38,13 @@
     }
 
     #dateInput {
-      max-height: fit-content;
+      border: 1px solid var( 	--bs-primary);
+      color: var(--bs-primary);
+      border-radius: 10px;
+    }
+    
+    .max-heigt {
+      max-height: 3rem;
     }
 
     .button-row {
@@ -58,11 +66,12 @@
   <div class="row">
     <h2>Selecteer datums, meerdere mogelijk</h2>
     <div class="di">
-      <input type="text" id="dateInput" placeholder="Select dates" readonly>
+      <input class="max-heigt" type="text" id="dateInput" placeholder="Select dates" readonly>
       <div id="selectedDates">
-        <label for="dateInput">datums: </label>
+        <label for="dateInput" class="fs-3" >datums: </label>
         <ul id="datesList"></ul>
       </div>
+      <button class="btn btn-secondary max-heigt" onclick="clearDates()">Leeg datums</button>
     </div>
   </div>
 
@@ -75,14 +84,13 @@
 
   <div class="row">
     <h2>Kilometer registratie</h2>
-
+    
     <div class="button-row">
-      <button onclick="reload()">Herlaad</button>
-      <button onclick="exportToExcel()">Download Excel bestand</button>
+      <button class="btn btn-outline-secondary" onclick="sortByDate()">Sorteer</button>
+      <button class="btn btn-primary" onclick="exportToExcel()">Download Excel bestand</button>
     </div>
 
-
-    <table id="data-table" border="1">
+    <table class="table table-striped table-hover" id="data-table" border="1">
       <tbody>
         <!-- Data will be inserted here by JavaScript -->
       </tbody>
@@ -91,148 +99,177 @@
 
   <!--------------------------- SCRIPT ---------------------------->
   <script>
-    // Get the routesbody div
-    const routesBody = document.getElementById('routesbody');
 
-    // Function to handle route data when a button is clicked
-    function addRouteToData(route) {
-      console.log("dates " + dates2);
-      // Here you can define what to do with the clicked route
-      console.log(`You clicked on: ${route}`);
-      dates2.forEach(date => {
-
-        data.push([formatDate(date), route[0], route[1], route[2], route[3]], [formatDate(date), route[1], route[0], route[2], route[3]])
-        console.log(route)
-      })
-      reload()
-    }
-
-    // Function to create a button for each route
-    function createRouteButton(route) {
-      // Create a div for the route
-      const routeDiv = document.createElement('div');
-
-      // Create a button for the route
-      const button = document.createElement('button');
-      button.textContent = route[0] + " <- -> " + route[1]; // Use the first element as the button text
-
-      // Add a click event listener to the button that calls addRouteToData
-      button.addEventListener('click', () => {
-        addRouteToData(route); // Pass the route to the function
-      });
-
-      // Append the button to the routeDiv
-      routeDiv.appendChild(button);
-
-      // Append the routeDiv to the routesbody
-      routesBody.appendChild(routeDiv);
-    }
-
-    // Loop over the routes array and create buttons for each route
-    routes.forEach(route => {
-      createRouteButton(route);
-    });
+      const routesBody = document.getElementById('routesbody');
     
-    const data = [
-      ["date", "departure", "arrival", "kilometers", "businesspurpose", "purposeexplanation", "deviatingexplanation"]
-    ];
-
-    reload();
-
-    function reload() {
-      // Get the table body element
-      const tableBody = document.getElementById("data-table").getElementsByTagName("tbody")[0];
-      tableBody.innerHTML = ''
-
-      // Loop over data and create rows
-      data.forEach(row => {
-        // Create a new row
-        const tr = document.createElement("tr");
-
-        // Loop over each item in the row array
-        row.forEach(cell => {
-          // Create a new cell
-          const td = document.createElement("td");
-          td.textContent = cell; // Set cell text
-          tr.appendChild(td);    // Append cell to row
+      // Function to handle route data when a button is clicked
+      function addRouteToData(route) {
+        dates2.forEach(date => {
+          data.push({
+            date: formatDate(date),
+            departure: route[0],
+            arrival: route[1],
+            kilometers: route[2],
+            businesspurpose: route[3],
+            purposeexplanation: "",
+            deviatingexplanation: route[5]
+          });
+    
+          data.push({
+            date: formatDate(date),
+            departure: route[1],
+            arrival: route[0],
+            kilometers: route[2],
+            businesspurpose: route[3],
+            purposeexplanation: "",
+            deviatingexplanation: route[5]
+          });
         });
-
-        // Append the row to the table body
-        tableBody.appendChild(tr);
-      });
-
-    }
-
-    // Array to hold selected dates
-    const selectedDates = [];
-    dates2 = [];
-
-    // Initialize flatpickr
-    const dateInput = flatpickr("#dateInput", {
-      mode: "multiple", // Enable multiple date selection
-      dateFormat: "Y-m-d", // Format of the selected dates
-      onChange: function (selectedDates, dateStr, instance) {
-        // This function will run when the date is selected
-        // The selectedDates array already contains selected date objects
-        updateDateList(selectedDates);
+        reload();
       }
-    });
+    
+      // Function to create a button for each route
+      function createRouteButton(route) {
+        const routeDiv = document.createElement('div');
+        const button = document.createElement('button');
+        button.classList.add("btn", "btn-primary")
+        button.textContent = route[0] + " <- -> " + route[1]; 
+        button.addEventListener('click', () => addRouteToData(route));
+        routeDiv.appendChild(button);
+        routesBody.appendChild(routeDiv);
+      }
+    
+      // Loop over the routes array and create buttons for each route
+      routes.forEach(route => createRouteButton(route));
+    
+      const data = []; // Start as an empty array
+    
+      reload();
+    
+      function reload() {
+        const tableBody = document.getElementById("data-table").getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = '';
+    
+        // Add table header row
+        const headerRow = document.createElement("tr");
+        const headers = ["Date", "Departure", "Arrival", "Kilometers", "Business Purpose", "Purpose Explanation", "Deviating Explanation"];
+        headers.forEach(header => {
+          const th = document.createElement("th");
+          th.setAttribute("scope", "col");
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        
+        const deleteAll = document.createElement("button");
+        deleteAll.classList.add("btn", "btn-danger")
+        deleteAll.textContent = "verwijder Alles";
+        deleteAll.addEventListener('click', () => {
+          location.reload();
+        });
+        headerRow.appendChild(deleteAll);
+        
+        tableBody.appendChild(headerRow);
 
-    // Function to update the list of selected dates
-    function updateDateList(dates) {
-      const datesList = document.getElementById('datesList');
-      datesList.innerHTML = ''; // Clear the list before updating
+ 
+    
+        // Loop over data and create rows
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.setAttribute("scope", "row");
+          
+          for (const key in row) {
+            const td = document.createElement("td");
+            td.textContent = row[key]; 
+            tr.appendChild(td);
+          }
 
-      // Loop through the selected dates and create list items
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "verwijder";                 // Set button text
+          deleteButton.addEventListener('click', () => {
+            // Find the index of this row's data object
+            const rowIndex = data.indexOf(row);
+            if (rowIndex > -1) {
+              data.splice(rowIndex, 1); // remove it from the data array
+            }
+            reload(); // re-render the table
+          });
+          deleteButton.classList.add("btn", "btn-danger");
+          
+          tr.appendChild(deleteButton);
 
-      dates2 = dates;
-      // Loop through the selected dates and create list items
-      dates.forEach(date => {
-        const listItem = document.createElement('li');
-        listItem.textContent = date.toLocaleDateString(); // Convert date to a readable format
-        datesList.appendChild(listItem); // Append each date to the list
+          tableBody.appendChild(tr);
+        });
+      }
+    
+      const selectedDates = [];
+      dates2 = [];
+    
+      // Config for date input element
+      const dateInput = flatpickr("#dateInput", {
+        mode: "multiple", 
+        dateFormat: "Y-m-d",
+        onChange: function (selectedDates, dateStr, instance) {
+          updateDateList(selectedDates);
+        },
+        "disable": [
+              function(date) {
+                  // return true to disable
+                  return (date.getDay() === 0 || date.getDay() === 6);
+      
+              }
+          ],
+          "locale": {
+              "firstDayOfWeek": 1 // start week on Monday
+          }
       });
+    
+      function updateDateList(dates) {
+        const datesList = document.getElementById('datesList');
+        datesList.innerHTML = '';
+        dates2 = dates;
+        dates.forEach(date => {
+          const listItem = document.createElement('li');
+          listItem.textContent = date.toLocaleDateString();
+          datesList.appendChild(listItem);
+        });
+      }
 
-    }
+      function clearDates(){
+        dateInput.clear();
+      }
 
-    // Button to show selected dates (optional)
-    document.getElementById('showSelectedDates').addEventListener('click', () => {
-      alert('Selected Dates: ' + selectedDates.map(date => date.toLocaleDateString()).join(', '));
-    });
-
-    function formatDate(date) {
-      const dayOfMonth = date.getDate();
-      const month = date.getMonth() + 1; //zero index, so january is 0
-      const year = date.getFullYear();
-      return `${month}-${dayOfMonth}-${year}`;
-    }
-
-    function exportToExcel() {
-      // 1. Define the data for the Excel file
-      // Data array
-
-      // 2. Create a new workbook and add the data as a worksheet
-      const worksheet = XLSX.utils.aoa_to_sheet(data); // Convert data array to worksheet
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-      // 3. Generate the Excel file as a Blob and trigger download
-      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-      const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-
-      // 4. Create a link to download the Blob as an Excel file
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "kilometers.xlsx"; // File name for download
-
-      // 5. Programmatically click the link to trigger the download
-      link.click();
-
-      // 6. Clean up by revoking the object URL
-      URL.revokeObjectURL(link.href);
-    }
-
-  </script>
+      function sortByDate() {
+        data.sort((a, b) => {
+          // Convert strings back to Date objects for comparison
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateA - dateB; // Ascending order
+        });
+        reload();
+      }
+    
+      function formatDate(date) {
+        const dayOfMonth = date.getDate();
+        const month = date.getMonth() + 1; 
+        const year = date.getFullYear();
+        return `${month}-${dayOfMonth}-${year}`;
+      }
+    
+      function exportToExcel() {
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "kilometers.xlsx";
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+      
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
 </body>
 
 </html>
