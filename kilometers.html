@@ -66,7 +66,10 @@
   <div class="row">
     <h2>Selecteer datums, meerdere mogelijk</h2>
     <div class="di">
-      <input class="max-heigt" type="text" id="dateInput" placeholder="Select dates" readonly>
+      <div>
+        <input class="max-heigt" type="text" id="dateInput" placeholder="Select dates" readonly>
+
+      </div>
       <div id="selectedDates">
         <label for="dateInput" class="fs-3" >datums: </label>
         <ul id="datesList"></ul>
@@ -208,6 +211,7 @@
       const dateInput = flatpickr("#dateInput", {
         mode: "multiple", 
         dateFormat: "Y-m-d",
+        inline: true,
         onChange: function (selectedDates, dateStr, instance) {
           updateDateList(selectedDates);
         },
