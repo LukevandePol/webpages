@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Volere snow card generator</title>
+</head>
+
+<body style="display: flex;">
+    <form id="input-form">
+        <label for="id">Requirement nr.</label>
+        <br>
+        <input name="id" type="number" />
+        <br>
+        <label for="type">Requirement type</label>
+        <br>
+        <select name="type">
+            <option value="functional">Functional</option>
+            <option value="non-functional">Non-functional</option>
+            <option value="constraint">Constraint</option>
+        </select>
+        <br>
+        <label for="event_id">Event/Use case nr.</label>
+        <br>
+        <input name="event_id" type="number" />
+        <br>
+        <label for="description">Description</label>
+        <br>
+        <textarea form="input-form" name="description"></textarea>
+        <br>
+        <label for="rationale">Rationale</label>
+        <br>
+        <textarea form="input-form" name="rationale"></textarea>
+        <br>
+        <label for="originator">Originator</label>
+        <br>
+        <input name="originator" type="text" />
+        <br>
+        <label for="fit_criterion">Fit criterion</label>
+        <br>
+        <textarea form="input-form" name="fit_criterion"></textarea>
+        <br>
+        <label for="satisfaction">Customer satisfaction</label>
+        <br>
+        <label for="satisfaction" id="satisfaction-label">3</label>
+        <input name="satisfaction" type="range" value="3" id="satisfaction-range" min="1" max="5" />
+        <br>
+        <label for="dissatisfaction">Customer dissatisfaction</label>
+        <br>
+        <label for="dissatisfaction" id="dissatisfaction-label">3</label>
+        <input name="dissatisfaction" type="range" value="3" id="dissatisfaction-range" min="1" max="5" />
+        <br>
+        <label for="priority">MoSCoW priority</label>
+        <br>
+        <select name="priority">
+            <option value="1">Must</option>
+            <option value="2">Should</option>
+            <option value="3">Could</option>
+            <option value="4">Won't</option>
+        </select>
+        <br>
+        <label for="conflicts">Conflicts with</label>
+        <br>
+        <input name="conflicts" type="text" />
+        <br>
+        <label for="supporting">Supporting materials</label>
+        <br>
+        <input name="supporting" />
+        <br>
+        <label for="history">History</label>
+        <br>
+        <textarea form="input-form" name="history"></textarea>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+    <div style="width: 75%; margin-left: 5%;">
+        <textarea id="output" style="display: inline; width: 100%; height: 90%;"></textarea>
+    <button id="download-button">Download JSON</button>
+    </div>
+</body>
+
+<script type="application/javascript">
+    $(document).ready(function () {
+        const inputForm = $('#input-form');
+        $('#satisfaction-range').on('input', function (event, ui) {
+            $('#satisfaction-label').html($('#satisfaction-range').val());
+        });
+        $('#dissatisfaction-range').on('input', function (event, ui) {
+            $('#dissatisfaction-label').html($('#dissatisfaction-range').val());
+        });
+        inputForm.on('submit', function (event) {
+            event.preventDefault();
+            const formData = inputForm.serializeArray();
+            let data = {};
+            $.each(formData, function (index, value) {
+                data[value.name] = value.value;
+            });
+            console.log(data);
+            $('#output').text(JSON.stringify(data, null, 2));
+        });
+        $('#download-button').on('click', function () {
+            const content = $('#output').text();
+            let file = new Blob([content], {type: 'application/json'});
+            let tempa = document.createElement("a");
+            tempa.href = URL.createObjectURL(file);
+            tempa.download = "snow.json";
+            tempa.click();
+            tempa.remove();
+            window.location.reload();
+        });
+    });
+</script>
+
+</html>
