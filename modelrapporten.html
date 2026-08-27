@@ -5,7 +5,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Modelrapporten</title>
 	</head>
-	<script></script>
+	<script>
+        let gevonden_modelrapport_variabelen = [];
+        let gevonden_gegevenstabel_variabelen = [];
+        
+
+    </script>
 
 	<!------------------ Style ------------------------->
 	<style>
@@ -13,36 +18,55 @@
             padding: 0;
             margin: 0;
         }
-        
+
         .main{
             display: flex;
             flex-direction: row;
-            width: 100dvw;
+            width: 100%;
         }
-
-        .modelrapport {
-            width: 50%;
-            display: flex;
-            justify-content: center;
-        }
-
-        .gegevenstabel {
-            width: 50%;
-            display: flex;
-            justify-content: center;
-        }
-
+        
         * {
             border: 1px solid red;
+        }
+
+        /***** Modelrapport ****************************/
+        .modelrapport {
+            width: 50%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        /***** Gegevenstabel ****************************/
+        .gegevenstabel {
+            width: 50%;
+            height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .knoppen {
+            height: 10%;
+            display: flex;
+            justify-content: space-around;
         }
     </style>
 	<body>
 		<div class="main">
 			<div class="modelrapport">
 				<h1>Modelrapport tekst</h1>
+                <!-- <input> hier moet een grote hoeveelheid tekst in getypt kunnen worden-->
 			</div>
+            
 			<div class="gegevenstabel">
 				<h1>Gegevenstabel</h1>
+                <!-- hier moeten variabelen getypt kunnen worden waarbij de zichtbare naam en vraag voor de variabelen ook ingetypt kunnen worden -->
+                 <div class="knoppen">
+                    <button>zoek in modelrapport</button>
+                    <button>sorteer gegevenstabel</button>
+                 </div>
 			</div>
 		</div>
 	</body>
