@@ -1,73 +1,1020 @@
 <!doctype html>
-<html lang="en">
+<html lang="nl">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Modelrapporten</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Variabelencontrole Modelrapport Tool</title>
+		<link
+			href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAASSnWACnWTgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARAAAAAAAAAREQAAAAAAAREREAAAAAARERERAAAAABEREREAAAABERERERAAAAEREREREAAAAREREREQAAABERERERAAAAEREREREAAAABEREREAAAAAAREREAAAAAAAAiAAAAAAAAAiIgAAAAAAACIiAAAAAAAAAAAAAAD+fwAA/D8AAPgfAADwDwAA8A8AAOAHAADgBwAA4AcAAOAHAADgBwAA8A8AAPgfAAD+fwAA/D8AAPw/AAD//wAA"
+			rel="icon"
+			type="image/x-icon"
+		/>
+
+		<style>
+			:root {
+				--blue: #007bc7;
+				--border: #cbd5e1;
+				--bg: #fafbfb;
+				--text: #111828;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				font-family: system-ui, "Segoe UI", sans-serif;
+				background: var(--bg);
+				color: var(--text);
+			}
+
+			header {
+				padding: 5px 3vw 8px;
+				color: #fff;
+				background: linear-gradient(120deg, #040627, #01689b);
+			}
+
+			header h1 {
+				margin: 0 0 0 0;
+			}
+
+			header p {
+				margin: 0;
+				color: #dbeafe;
+			}
+
+			main {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
+				padding: 10px;
+				min-height: calc(100vh - 105px);
+			}
+
+			.panel {
+				display: flex;
+				flex-direction: column;
+				min-width: 0;
+				background: #fff;
+				border: 1px solid var(--border);
+				border-radius: 16px;
+				overflow: hidden;
+				box-shadow: 0 10px 28px #0f172a14;
+			}
+
+			.head {
+				display: flex;
+				justify-content: space-between;
+				gap: 12px;
+				padding: 12px 18px 1px;
+			}
+
+			.head h2 {
+				margin: 0 0 0 0;
+				font-size: medium;
+			}
+
+			.help {
+				margin: 0;
+				color: #64748b;
+				font-size: 0.88rem;
+			}
+
+			.count {
+				height: max-content;
+				padding: 4px 10px;
+				border-radius: 999px;
+				background: #e0e7ff;
+				color: #231e6a;
+				font-size: 0.78rem;
+				font-weight: 700;
+			}
+
+			.content {
+				display: flex;
+				flex: 1;
+				min-height: 0;
+				flex-direction: column;
+				gap: 10px;
+				padding: 10px;
+			}
+
+			textarea {
+				width: 100%;
+				min-height: 260px;
+				flex: 1;
+				resize: vertical;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				padding: 12px;
+				background: #fbfdff;
+				font:
+					14px/1.55 ui-monospace,
+					monospace;
+				tab-size: 4;
+			}
+
+			.editor {
+				position: relative;
+				min-height: 360px;
+				flex: 1;
+				overflow: hidden;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				background: #fbfdff;
+			}
+
+			.editor textarea,
+			.highlight {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				min-height: 0;
+				margin: 0;
+				border: 0;
+				padding: 12px;
+				overflow: auto;
+				white-space: pre-wrap;
+				overflow-wrap: anywhere;
+				font:
+					14px/1.55 ui-monospace,
+					Consolas,
+					monospace;
+				tab-size: 4;
+			}
+
+			.highlight {
+				z-index: 1;
+				pointer-events: none;
+			}
+
+			.editor textarea {
+				z-index: 2;
+				resize: none;
+				color: transparent;
+				background: transparent;
+				caret-color: var(--text);
+				-webkit-text-fill-color: transparent;
+			}
+
+			.editor textarea:focus {
+				outline: 3px solid #2563eb29;
+			}
+
+			.highlight mark {
+				padding: 0;
+				border-radius: 2px;
+				background: #fde68a;
+				color: #713f12;
+				font-weight: 700;
+			}
+
+			.highlight mark.missing {
+				background: #fecaca;
+				color: #7f1d1d;
+				box-shadow: inset 0 -2px #ef4444;
+			}
+
+			.highlight mark.bracket {
+				background: #3c98e3;
+				color: #ffffff;
+				font-weight: 500;
+				padding: 0px 1px 2px 1px;
+			}
+
+			.toolbar {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
+
+			button {
+				border: 0;
+				border-radius: 9px;
+				padding: 10px 13px;
+				cursor: pointer;
+				font-weight: 700;
+				background: #e2e8f0;
+				color: #1e293b;
+			}
+
+			button.primary {
+				background: var(--blue);
+				color: #fff;
+			}
+
+			button.success {
+				background: #39870c;
+				color: #fff;
+			}
+
+			button.warning {
+				background: #e17000;
+				color: #fff;
+			}
+
+			mark.missing {
+				background: #fecaca;
+				color: #7f1d1d;
+				box-shadow: inset 0 -2px #ef4444;
+			}
+
+			.status {
+				padding: 10px 12px;
+				border-radius: 10px;
+				background: #eff6ff;
+				color: #1e3a8a;
+				font-size: 0.88rem;
+				line-height: 1.45;
+			}
+
+			.status.ok {
+				background: #f0fdf4;
+				color: #166534;
+			}
+
+			.status.warn {
+				background: #fff7ed;
+				color: #9a3412;
+			}
+
+			.label {
+				color: #475569;
+				font-size: 0.82rem;
+				font-weight: 700;
+				margin-left: 10px;
+			}
+
+			mark {
+				padding: 1px 2px;
+				border-radius: 3px;
+				background: #fde68a;
+				color: #713f12;
+				font-weight: 700;
+			}
+
+			.lists {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
+			}
+
+			.listbox {
+				max-height: 150px;
+				overflow: auto;
+				border: 1px solid #e2e8f0;
+				border-radius: 10px;
+				padding: 9px;
+				background: #f8fafc;
+			}
+
+			.listbox h3 {
+				margin: 0 0 7px;
+				font-size: 0.8rem;
+			}
+
+			.chips {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 5px;
+			}
+
+			.chip {
+				padding: 4px 7px;
+				border-radius: 6px;
+				background: #e2e8f0;
+				font:
+					12px ui-monospace,
+					monospace;
+			}
+
+			.chip.missing {
+				background: #fee2e2;
+				color: #b91c1c;
+			}
+
+			.empty {
+				color: #64748b;
+				font-size: 0.82rem;
+			}
+
+			.tablePreview {
+				max-height: 350px;
+				overflow: auto;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				background: #fff;
+			}
+
+			.card {
+				padding: 10px 12px;
+				border-bottom: 1px solid #e2e8f0;
+			}
+
+			.card:last-child {
+				border: 0;
+			}
+
+			.var {
+				color: #1d4ed8;
+				font:
+					700 12px ui-monospace,
+					monospace;
+			}
+
+			.badge {
+				margin-left: 6px;
+				padding: 2px 6px;
+				border-radius: 999px;
+				background: #dcfce7;
+				color: #166534;
+				font-size: 11px;
+				font-weight: 700;
+			}
+
+			.badge.inferred {
+				background: #fef3c7;
+				color: #92400e;
+			}
+
+			.visible {
+				margin-top: 3px;
+				font-weight: 700;
+			}
+
+			.question {
+				margin-top: 5px;
+				color: #334155;
+			}
+
+			.options {
+				margin: 7px 0 0;
+				padding-left: 25px;
+			}
+
+			.options li {
+				margin: 3px 0;
+			}
+
+			.value {
+				font-family: ui-monospace, monospace;
+				color: #7c2d12;
+			}
+
+			.hint {
+				font-size: 11px;
+				color: #64748b;
+				margin-top: 5px;
+			}
+
+			@media (max-width: 900px) {
+				main {
+					grid-template-columns: 1fr;
+				}
+			}
+
+			@media (max-width: 520px) {
+				.lists {
+					grid-template-columns: 1fr;
+				}
+
+				.toolbar button {
+					width: 100%;
+				}
+			}
+		</style>
 	</head>
-	<script>
-        let gevonden_modelrapport_variabelen = [];
-        let gevonden_gegevenstabel_variabelen = [];
-        
 
-    </script>
-
-	<!------------------ Style ------------------------->
-	<style>
-        body {
-            padding: 0;
-            margin: 0;
-        }
-
-        .main{
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-        }
-        
-        * {
-            border: 1px solid red;
-        }
-
-        /***** Modelrapport ****************************/
-        .modelrapport {
-            width: 50%;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-        }
-
-        /***** Gegevenstabel ****************************/
-        .gegevenstabel {
-            width: 50%;
-            height: 100vh;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .knoppen {
-            height: 10%;
-            display: flex;
-            justify-content: space-around;
-        }
-    </style>
+	<!--  BODY  ------------------------------------------------------->
 	<body>
-		<div class="main">
-			<div class="modelrapport">
-				<h1>Modelrapport tekst</h1>
-                <!-- <input> hier moet een grote hoeveelheid tekst in getypt kunnen worden-->
-			</div>
-            
-			<div class="gegevenstabel">
-				<h1>Gegevenstabel</h1>
-                <!-- hier moeten variabelen getypt kunnen worden waarbij de zichtbare naam en vraag voor de variabelen ook ingetypt kunnen worden -->
-                 <div class="knoppen">
-                    <button>zoek in modelrapport</button>
-                    <button>sorteer gegevenstabel</button>
-                 </div>
-			</div>
-		</div>
+		<header>
+			<h1>Variabelencontrole voor modelrapporten</h1>
+			<p>
+				Herkent variabelen en keuzelijsten uit tussen &lt;&lt; &gt;&gt; en uit
+				TEST-voorwaarden in het modelrapport.
+			</p>
+		</header>
+
+		<main>
+			<section class="panel">
+				<div class="head">
+					<div>
+						<h2>Modelrapport</h2>
+						<p class="help">
+							Plak hier het modelrapport. Geel is aanwezig, rood ontbreekt
+							in gegevenstabel.
+						</p>
+					</div>
+					<span id="modelCount" class="count">0 variabelen</span>
+				</div>
+
+				<div class="content">
+					<div class="editor">
+						<div id="modelHighlight" class="highlight"></div>
+						<textarea
+							id="modelText"
+							spellcheck="false"
+							placeholder="Plak hier de modelrapporttekst..."
+						></textarea>
+					</div>
+
+					<div class="toolbar">
+						<button id="search" class="primary">Zoek en vergelijk</button>
+						<button id="clearModel">Wis modelrapport</button>
+					</div>
+				</div>
+			</section>
+
+			<section class="panel">
+				<div class="head">
+					<div>
+						<h2>Gegevenstabel</h2>
+						<p class="help">
+							Opties mogen beginnen met 'Optie 1:', '1:' of '1.'
+						</p>
+					</div>
+					<span id="tableCount" class="count">0 variabelen</span>
+				</div>
+
+				<div class="content">
+					<textarea
+						id="tableText"
+						spellcheck="false"
+						placeholder="Plak hier de gegevenstabel..."
+					></textarea>
+
+					<div class="toolbar">
+						<button id="add" class="success" type="button">
+							Voeg ontbrekende variabelen toe
+						</button>
+						<button id="applyChoices" class="success" type="button">
+							Voeg herkende keuzes toe
+						</button>
+						<button id="sort" type="button">Sorteer gegevenstabel</button>
+						<button id="copyText" class="copy">Kopieer als tekst</button>
+						<button id="copyWord" class="copy">Kopieer als tabel</button>
+						<button id="clearTable" type="button" class="warning">
+							Wis tabel
+						</button>
+					</div>
+
+					<div id="status" class="status">Vul beide tekstvelden in.</div>
+
+					<div class="lists">
+						<div class="listbox">
+							<h3>Gevonden in modelrapport</h3>
+							<div id="found" class="chips">
+								<span class="empty">Geen</span>
+							</div>
+						</div>
+						<div class="listbox">
+							<h3>Ontbrekend in gegevenstabel</h3>
+							<div id="missing" class="chips">
+								<span class="empty">Geen</span>
+							</div>
+						</div>
+					</div>
+					<span class="label">Gestructureerde weergave gegevenstabel</span>
+					<div id="tablePreview" class="tablePreview">
+						<div class="card empty">
+							Nog geen gegevensstructuur ingevoerd.
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<!--  SCRIPT  ------------------------------------------------------->
+		<script>
+			"use strict";
+			const $ = (id) => document.getElementById(id),
+				modelText = $("modelText"),
+				tableText = $("tableText"),
+				highlight = $("modelHighlight");
+
+			const identifier = "[\\p{L}\\p{N}][\\p{L}\\p{N}_-]*",
+				varRx = /[\p{L}\p{N}]+(?:_[\p{L}\p{N}]+)+/gu,
+				underscoreRx = /[\p{L}\p{N}]+(?:_[\p{L}\p{N}]+)+/gu,
+				wholeRx = new RegExp(`^${identifier}$`, "u");
+
+			const STORAGE_MODEL = "variabelenModelrapportTool.model.v1",
+				STORAGE_TABLE = "variabelenModelrapportTool.table.v1";
+
+			let modelVars = [],
+				tableVars = [],
+				missing = [],
+				inferredChoices = new Map(),
+				variableSpans = [];
+
+			const esc = (s) =>
+				String(s).replace(
+					/[&<>"']/g,
+					(c) =>
+						({
+							"&": "&amp;",
+							"<": "&lt;",
+							">": "&gt;",
+							'"': "&quot;",
+							"'": "&#039;",
+						})[c],
+				);
+
+			const unique = (a) =>
+				[...new Set(a)].sort((x, y) =>
+					x.localeCompare(y, "nl", { sensitivity: "base" }),
+				);
+
+			const human = (v) =>
+				v.replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
+
+			const noQuestion = (v) => `VRAAG ONTBREEKT: ${v}`;
+
+			const stripTags = (s) => s.replace(/<[^>]*>/g, "");
+
+			function parseOption(line) {
+				let s = line.trim();
+				if (!s) return null;
+				const m = s.match(/^(?:optie\s*)?\d+\s*[:.)-]\s*(.+)$/i);
+				if (m) s = m[1].trim();
+				else if (!/^anders$/i.test(s)) return null;
+				const i = s.indexOf("|");
+				return {
+					value: (i < 0 ? s : s.slice(0, i)).trim(),
+					label: (i < 0 ? s : s.slice(i + 1)).trim(),
+				};
+			}
+
+			function finish(b) {
+				const m = b.lines
+						.slice(1)
+						.map((x) => x.trim())
+						.filter(Boolean),
+					i = m.findIndex(parseOption),
+					d = i < 0 ? m : m.slice(0, i),
+					options = (i < 0 ? [] : m.slice(i)).map(parseOption).filter(Boolean);
+				return {
+					...b,
+					visible: d[0] || human(b.variable),
+					question: d[1] || noQuestion(b.variable),
+					questionMissing: d.length < 2,
+					options,
+				};
+			}
+
+			function parseBlocks(text) {
+				const lines = text
+						.replace(/\r\n/g, "\n")
+						.replace(/<br\s*\/?\s*>/gi, "\n")
+						.split("\n"),
+					preamble = [],
+					blocks = [];
+
+				let b = null;
+
+				for (const line of lines) {
+					const t = line.trim();
+					if (wholeRx.test(t)) {
+						if (b) blocks.push(finish(b));
+						b = { variable: t, lines: [t] };
+					} else if (b) b.lines.push(line);
+					else preamble.push(line);
+				}
+
+				if (b) blocks.push(finish(b));
+
+				return { preamble, blocks };
+			}
+
+			function variableFromConstruct(inner) {
+				const plain = stripTags(inner).trim(),
+					rules = [
+						/^TEST\s+([\p{L}\p{N}][\p{L}\p{N}_-]*)/iu,
+						/^(?:VALUE|EXPRESSION)\s+([\p{L}\p{N}][\p{L}\p{N}_-]*)/iu,
+						/^(?:END\s+)?REPEAT\s+([\p{L}\p{N}][\p{L}\p{N}_-]*)/iu,
+						/^FIELD(?:\s+DocProperty)?\s+([\p{L}\p{N}][\p{L}\p{N}_-]*)/iu,
+						/^([\p{L}\p{N}][\p{L}\p{N}_-]*)\s*$/u,
+					];
+				for (const r of rules) {
+					const m = plain.match(r);
+					if (m) return m[1];
+				}
+				return null;
+			}
+
+			function extractVariables(text) {
+				const names = [],
+					spans = [];
+				for (const m of text.matchAll(underscoreRx)) {
+					names.push(m[0]);
+					spans.push({
+						start: m.index,
+						end: m.index + m[0].length,
+						name: m[0],
+					});
+				}
+				const constructRx = /<<([\s\S]*?)>>/g;
+				for (const c of text.matchAll(constructRx)) {
+					const name = variableFromConstruct(c[1]);
+					if (!name) continue;
+					names.push(name);
+					const segment = c[0],
+						relative = segment.indexOf(name);
+					if (relative >= 0)
+						spans.push({
+							start: c.index + relative,
+							end: c.index + relative + name.length,
+							name,
+						});
+				}
+				spans.sort((a, b) => a.start - b.start || b.end - a.end);
+				const clean = [];
+				for (const s of spans)
+					if (!clean.some((x) => s.start < x.end && s.end > x.start))
+						clean.push(s);
+				return { names: unique(names), spans: clean };
+			}
+
+			const normalizeQuotes = (s) => s.replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
+
+			function findChoices(text) {
+				const result = new Map(),
+					clean = normalizeQuotes(text);
+
+				const rx =
+					/([\p{L}\p{N}]+(?:_[\p{L}\p{N}]+)+)\s*\[\s*\.\s*=\s*(['"])(.*?)\2\s*\]/gu;
+
+				for (const m of clean.matchAll(rx)) {
+					if (!result.has(m[1])) result.set(m[1], []);
+					if (m[3].trim() && !result.get(m[1]).includes(m[3].trim()))
+						result.get(m[1]).push(m[3].trim());
+				}
+				return result;
+			}
+
+			function effectiveOptions(block) {
+				if (block.options.length)
+					return { options: block.options, inferred: false };
+				const found = inferredChoices.get(block.variable) || [];
+				return {
+					options: found.map((x) => ({ value: x, label: x })),
+					inferred: found.length > 0,
+				};
+			}
+
+			function renderTable() {
+				const data = parseBlocks(tableText.value).blocks,
+					target = $("tablePreview");
+
+				if (!data.length) {
+					target.innerHTML =
+						'<div class="card empty">Nog geen gegevensstructuur ingevoerd.</div>';
+					return;
+				}
+
+				target.innerHTML = data
+					.map((b) => {
+						const e = effectiveOptions(b);
+						return `<article class="card"><div><span class="var">${esc(b.variable)}</span>${e.options.length ? `<span class="badge${e.inferred ? " inferred" : ""}">${e.inferred ? "keuzes uit modelrapport" : "keuzelijst"}</span>` : ""}</div><div class="visible">${esc(b.visible)}</div>${b.question ? `<div class="question">${esc(b.question)}</div>` : ""}${e.options.length ? `<ol class="options">${e.options.map((o) => `<li>${o.value === o.label ? `<span class="value">${esc(o.value)}</span>` : `<span class="value">${esc(o.value)}</span> | ${esc(o.label)}`}</li>`).join("")}</ol>` : ""}${e.inferred ? '<div class="hint">Deze keuzes zijn automatisch uit voorwaarden in het modelrapport afgeleid.</div>' : ""}</article>`;
+					})
+					.join("");
+			}
+
+			function chips(id, a, isMissing = false) {
+				$(id).innerHTML = a.length
+					? a
+							.map(
+								(v) =>
+									`<span class="chip${isMissing ? " missing" : ""}">${esc(v)}</span>`,
+							)
+							.join("")
+					: '<span class="empty">Geen</span>';
+			}
+
+			function compare() {
+				const found = extractVariables(modelText.value);
+				modelVars = found.names;
+				variableSpans = found.spans;
+
+				inferredChoices = findChoices(modelText.value);
+				modelVars = unique(modelText.value.match(varRx) || []);
+
+				const parsed = parseBlocks(tableText.value);
+				tableVars = unique(parsed.blocks.map((b) => b.variable));
+
+				const set = new Set(tableVars);
+				missing = modelVars.filter((v) => !set.has(v));
+				renderHighlight(set);
+
+				chips("found", modelVars);
+				chips("missing", missing, true);
+
+				let html = "",
+					last = 0;
+				varRx.lastIndex = 0;
+
+				for (const m of modelText.value.matchAll(varRx)) {
+					html +=
+						esc(modelText.value.slice(last, m.index)) +
+						`<mark${set.has(m[0]) ? "" : ' class="missing"'}>${esc(m[0])}</mark>`;
+					last = m.index + m[0].length;
+				}
+
+				html += esc(modelText.value.slice(last));
+
+				chips("found", modelVars);
+				chips("missing", missing, true);
+
+				$("modelCount").textContent = `${modelVars.length} variabelen`;
+				$("tableCount").textContent = `${tableVars.length} variabelen`;
+
+				const canApply = parsed.blocks.some(
+					(b) =>
+						!b.options.length &&
+						(inferredChoices.get(b.variable) || []).length,
+				);
+
+				renderTable();
+
+				const choiceCount = parsed.blocks.filter(
+					(b) => effectiveOptions(b).options.length,
+				).length;
+
+				$("status").className = "status " + (missing.length ? "warn" : "ok");
+				$("status").textContent = !modelVars.length
+					? "Geen variabelen met underscores gevonden."
+					: `${missing.length ? missing.length + " variabele(n) ontbreken. " : "Alle variabelen zijn aanwezig. "}${choiceCount} keuzelijst(en) herkend.`;
+
+				save();
+			}
+
+			function addMissing() {
+				const sep = tableText.value.trim() ? "\n\n" : "";
+				tableText.value =
+					tableText.value.trimEnd() +
+					sep +
+					missing
+						.map((v) => `${v}\n${human(v)}\nVRAAG ONTBREEKT: ${v}`)
+						.join("\n\n") +
+					"\n";
+				compare();
+			}
+
+			function serialize(b, useEffective = false) {
+				const e = useEffective ? effectiveOptions(b) : { options: b.options };
+
+				const lines = [b.variable, b.visible];
+
+				if (b.question) lines.push(b.question);
+				e.options.forEach((o, i) =>
+					lines.push(
+						`Optie ${i + 1}: ${o.value === o.label ? o.value : o.value + "|" + o.label}`,
+					),
+				);
+
+				if (!e.options.length) {
+					return b.lines.join("\n").trim();
+				}
+
+				return lines.join("\n");
+			}
+
+			function highlightBrackets(text) {
+				return esc(text).replace(
+					/(&lt;|&gt;|[()\[\]{}])/g,
+					'<mark class="bracket">$1</mark>',
+				);
+			}
+
+			function renderHighlight(set) {
+				let html = "",
+					last = 0;
+
+				for (const s of variableSpans) {
+					html +=
+						highlightBrackets(modelText.value.slice(last, s.start)) +
+						`<mark${set.has(s.name) ? "" : ' class="missing"'}>${esc(
+							modelText.value.slice(s.start, s.end),
+						)}</mark>`;
+					last = s.end;
+				}
+
+				highlight.innerHTML =
+					html + highlightBrackets(modelText.value.slice(last)) + "\n";
+
+				syncScroll();
+			}
+
+			function syncScroll() {
+				highlight.scrollTop = modelText.scrollTop;
+				highlight.scrollLeft = modelText.scrollLeft;
+			}
+
+			function applyChoices() {
+				const data = parseBlocks(tableText.value);
+				const count = data.blocks.filter(
+					(b) =>
+						!b.options.length &&
+						(inferredChoices.get(b.variable) || []).length,
+				).length;
+
+				const pre = data.preamble.join("\n").trim();
+				tableText.value =
+					(pre ? pre + "\n\n" : "") +
+					data.blocks.map((b) => serialize(b, true)).join("\n\n") +
+					"\n";
+				compare();
+
+				$("status").className = "status ok";
+				$("status").textContent =
+					`Bij ${count} variabele(n) zijn keuzes uit het modelrapport aan de gegevenstabel toegevoegd.`;
+			}
+
+			function sortTable() {
+				const data = parseBlocks(tableText.value);
+
+				if (!data.blocks.length) {
+					$("status").className = "status warn";
+					$("status").textContent = "Geen gegevensblokken gevonden.";
+					return;
+				}
+
+				const positions = new Map();
+				varRx.lastIndex = 0;
+
+				for (const m of modelText.value.matchAll(varRx))
+					positions.set(m[0], m.index);
+
+				data.blocks.sort((a, b) => {
+					const ac = effectiveOptions(a).options.length > 0,
+						bc = effectiveOptions(b).options.length > 0;
+					if (ac !== bc) return ac ? -1 : 1;
+					const ak = positions.has(a.variable),
+						bk = positions.has(b.variable);
+					if (ak !== bk) return ak ? -1 : 1;
+					if (ak && positions.get(a.variable) !== positions.get(b.variable))
+						return positions.get(a.variable) - positions.get(b.variable);
+					return a.variable.localeCompare(b.variable, "nl", {
+						sensitivity: "base",
+					});
+				});
+
+				const pre = data.preamble.join("\n").trim();
+
+				tableText.value =
+					(pre ? pre + "\n\n" : "") +
+					data.blocks.map((b) => serialize(b, false)).join("\n\n") +
+					"\n";
+
+				compare();
+
+				$("status").className = "status ok";
+				$("status").textContent =
+					"Gesorteerd: keuzelijsten eerst, daarna volgens de laatste vermelding in het modelrapport.";
+			}
+
+			function visibleText() {
+				return parseBlocks(tableText.value)
+					.blocks.map((b) => serialize(b, false))
+					.join("\n\n");
+			}
+
+			async function copyText() {
+				const text = visibleText();
+
+				if (!text) return show("Er is niets om te kopieren.", false);
+				await navigator.clipboard.writeText(text);
+
+				show("Zichtbare tekst gekopieerd.", true);
+			}
+
+			function wordRows() {
+				return parseBlocks(tableText.value).blocks.map((b) => {
+					const opts = effectiveOptions(b).options;
+
+					return [
+						b.variable,
+						b.visible,
+						[
+							b.question,
+							...opts.map(
+								(o, i) =>
+									`${i + 1}: ${o.value}${
+										o.label !== o.value ? " | " + o.label : ""
+									}`,
+							),
+						].join("\n"),
+					];
+				});
+			}
+
+			function wordHtml(rows) {
+				const td = (c) =>
+					`<td style="border:1px solid #000;padding:6px;vertical-align:top">${esc(c).replace(/\n/g, "<br>")}</td>`;
+				return `<table style="border-collapse:collapse;width:100%"><thead><tr>${["naam_van_variabele", "Zichtbare naam", "Vraag (met keuzelijstitems)"].map(td).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map(td).join("")}</tr>`).join("")}</tbody></table>`;
+			}
+
+			async function copyWord() {
+				const rows = wordRows();
+
+				if (!rows.length) return show("Er is niets om te kopieren.", false);
+
+				const html = wordHtml(rows),
+					plain = rows.map((r) => r.join("\t")).join("\n");
+
+				try {
+					await navigator.clipboard.write([
+						new ClipboardItem({
+							"text/html": new Blob([html], { type: "text/html" }),
+							"text/plain": new Blob([plain], { type: "text/plain" }),
+						}),
+					]);
+				} catch (e) {
+					const box = document.createElement("div");
+					box.contentEditable = "true";
+					box.style.position = "fixed";
+					box.style.left = "-9999px";
+					box.innerHTML = html;
+					document.body.appendChild(box);
+					const range = document.createRange();
+					range.selectNodeContents(box);
+					const sel = getSelection();
+					sel.removeAllRanges();
+					sel.addRange(range);
+					document.execCommand("copy");
+					sel.removeAllRanges();
+					box.remove();
+				}
+
+				show("Word-tabel met 3 kolommen gekopieerd.", true);
+			}
+
+			function show(text, ok) {
+				$("status").className = "status " + (ok ? "ok" : "warn");
+				$("status").textContent = text;
+			}
+
+			function save() {
+				try {
+					localStorage.setItem(STORAGE_MODEL, modelText.value);
+					localStorage.setItem(STORAGE_TABLE, tableText.value);
+				} catch (e) {
+					show("Lokaal opslaan is door de browser geblokkeerd.", false);
+					console.error("Kon data niet opslaan in localstorage");
+				}
+			}
+
+			function load() {
+				try {
+					modelText.value = localStorage.getItem(STORAGE_MODEL) || "";
+					tableText.value = localStorage.getItem(STORAGE_TABLE) || "";
+				} catch (e) {
+					console.error("Kon data niet ophalen van localstorage");
+				}
+			}
+
+			$("search").onclick = compare;
+
+			$("add").onclick = addMissing;
+
+			$("applyChoices").onclick = applyChoices;
+
+			$("sort").onclick = sortTable;
+
+			$("clearModel").onclick = () => {
+				modelText.value = "";
+				save();
+				compare();
+			};
+
+			$("clearTable").onclick = () => {
+				tableText.value = "";
+				save();
+				compare();
+			};
+
+			$("copyText").onclick = () =>
+				copyText().catch(() =>
+					show("Platte tekst kopiëren is geblokkeerd.", false),
+				);
+
+			$("copyWord").onclick = () =>
+				copyWord().catch(() => show("Tabel kopiëren is geblokkeerd.", false));
+
+			let timer;
+			[modelText, tableText].forEach((el) =>
+				el.addEventListener("input", () => {
+					clearTimeout(timer);
+					timer = setTimeout(compare, 300);
+				}),
+			);
+
+			modelText.addEventListener("scroll", syncScroll);
+
+			load();
+			compare();
+			syncScroll();
+		</script>
 	</body>
 </html>
